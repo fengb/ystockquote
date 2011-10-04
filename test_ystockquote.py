@@ -1,5 +1,5 @@
 import ystockquote
-from ystockquote import orig
+from ystockquote import legacy, compat as impr
 
 
 def pytest_generate_tests(metafunc):
@@ -10,9 +10,9 @@ def pytest_generate_tests(metafunc):
 
 
 # FIXME: there has to be a better way of getting the module API
-API_NAMES = [f for f in dir(orig) if not f.startswith('_')
-                                  and callable(getattr(orig, f))
-                                  and getattr(orig, f).__module__ == orig.__name__]
+API_NAMES = [f for f in dir(legacy) if not f.startswith('_')
+                                    and callable(getattr(legacy, f))
+                                    and getattr(legacy, f).__module__ == legacy.__name__]
 
 
 class TestApiConsistency(object):
@@ -22,6 +22,6 @@ class TestApiConsistency(object):
 
 
     def test_equals(self, func_name):
-        orig_func = getattr(orig, func_name)
-        impr_func = getattr(ystockquote, func_name)
-        assert impr_func('KO') == orig_func('KO')
+        legacy_func = getattr(legacy, func_name)
+        impr_func = getattr(impr, func_name)
+        assert impr_func('KO') == legacy_func('KO')
