@@ -1,4 +1,5 @@
 import operator
+import warnings
 
 from . import orig
 
@@ -38,11 +39,26 @@ def _get_no_cache(symbol):
     return data
 
 
+@deprecated
 def get_all(symbol, cache={}):
     if symbol not in cache:
         cache[symbol] = _get_no_cache(symbol)
 
     return cache[symbol]
+
+
+def deprecated(func):
+    """This is a decorator which can be used to mark functions
+    as deprecated. It will result in a warning being emmitted
+    when the function is used."""
+    def new_func(*args, **kwargs):
+        warnings.warn("Call to deprecated function %s." % func.__name__,
+                      category=DeprecationWarning)
+        return func(*args, **kwargs)
+    new_func.__name__ = func.__name__
+    new_func.__doc__ = func.__doc__
+    new_func.__dict__.update(func.__dict__)
+    return new_func
 
 
 # FIXME: metaprogram evilness
@@ -51,6 +67,7 @@ for field in _FIELDS:
     #func = lambda symbol: get_all(symbol)[field]
     # DOUBLE YOU TEE EFF: http://lackingrhoticity.blogspot.com/2009/04/python-variable-binding-semantics-part.html#c5923214396394060839
     func = (lambda field: lambda symbol: get_all(symbol)[field].strip('"'))(field)
+    func = deprecated(func)
 
-    func.func_name = 'get_' + field
-    locals()[func.func_name] = func
+    func.__name__ = 'get_' + field
+    locals()[func.__name__] = func
