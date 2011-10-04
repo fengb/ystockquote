@@ -36,3 +36,14 @@ def get_all(symbol):
         data[field] = values[i]
 
     return data
+
+
+# FIXME: metaprogram evilness
+for field in _FIELDS:
+    # 'Simpler' implementation has wonky closure shadowing
+    #func = lambda symbol: get_all(symbol)[field]
+    # DOUBLE YOU TEE EFF: http://lackingrhoticity.blogspot.com/2009/04/python-variable-binding-semantics-part.html#c5923214396394060839
+    func = (lambda field: lambda symbol: get_all(symbol)[field].strip('"'))(field)
+
+    func.func_name = 'get_' + field
+    locals()[func.func_name] = func
