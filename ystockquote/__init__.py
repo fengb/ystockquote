@@ -29,13 +29,20 @@ _STATS = map(operator.itemgetter(0), _DIRECTIVES)
 _FIELDS = map(operator.itemgetter(1), _DIRECTIVES)
 
 
-def get_all(symbol):
+def _get_no_cache(symbol):
     values = orig.__request(symbol, ''.join(_STATS)).split(',')
     data = {}
     for (i, field) in enumerate(_FIELDS):
         data[field] = values[i]
 
     return data
+
+
+def get_all(symbol, cache={}):
+    if symbol not in cache:
+        cache[symbol] = _get_no_cache(symbol)
+
+    return cache[symbol]
 
 
 # FIXME: metaprogram evilness
