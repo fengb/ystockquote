@@ -29,19 +29,10 @@ _STATS = map(operator.itemgetter(0), _DIRECTIVES)
 _FIELDS = map(operator.itemgetter(1), _DIRECTIVES)
 
 
-def _get_no_cache(symbol):
+def get(symbol):
     values = legacy.__request(symbol, ''.join(_STATS)).split(',')
     data = {}
     for (i, field) in enumerate(_FIELDS):
         data[field] = values[i]
 
     return data
-
-
-def get(symbol, cache={}):
-    if symbol not in cache:
-        cache[symbol] = _get_no_cache(symbol)
-
-    return cache[symbol]
-
-
